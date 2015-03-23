@@ -37,7 +37,7 @@ while ishandle(fig)
     drawnow
     window = window + 1;
     axis([window, window + window_w, y_axis_min, y_axis_max]);
-    legend([num2str(data(end))]);   % print data
+%    legend([num2str(data(end))]);   % print data
 end
 
 fclose(s);
