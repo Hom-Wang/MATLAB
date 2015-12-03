@@ -1,9 +1,18 @@
-
-void Serial_sendDataMATLAB( int16_t *sendData, uint8_t dataLens )
+/*====================================================================================================*/
+/*====================================================================================================*
+**函數 : Serial_SendDataMATLAB
+**功能 : Send Data to MATLAB 
+**輸入 : *sendData, lens
+**輸出 : None
+**使用 : Serial_SendDataMATLAB(sendData, 10); // int16 * 10 data
+**====================================================================================================*/
+/*====================================================================================================*/
+void Serial_SendDataMATLAB( int16_t *sendData, uint8_t lens )
 {
-  uint8_t tmpData[16] = {0};
+  uint8_t tmpData[32] = {0};  // tmpData lens >= 2 * lens + 4
   uint8_t *ptrData = tmpData;
-  uint8_t dataBytes = dataLens - 4;
+  uint8_t dataBytes = lens << 1;
+  uint8_t dataLens = dataBytes + 4;
   uint8_t count = 0;
   uint16_t tmpSum = 0;
 
@@ -20,17 +29,22 @@ void Serial_sendDataMATLAB( int16_t *sendData, uint8_t dataLens )
   tmpData[dataLens - 1] = '\n';
 
   do {
-    Bluetooth_SendByte(*ptrData++);
+    Serial_SendByte(*ptrData++);
   } while(--dataLens);
 }
-
+/*====================================================================================================*/
+/*====================================================================================================*/
 int main( void )
 {
-  int16_t IMU_Buf[8] = {0};
+  int16_t testLostRate = 0;
+  int16_t IMU_Buf[10] = {0};
 
   while(1) {
-    MPU9255_getData(IMU_Buf);
-    Serial_sendDataMATLAB(IMU_Buf, 16);
-    Delay_1ms(5);
+    MPU9250_getData(IMU_Buf);
+	IMU_Buf[0] = testLostRate++;
+    Serial_sendDataMATLAB(IMU_Buf, 10);
+    Delay_1ms(4);
   }
 }
+/*====================================================================================================*/
+/*====================================================================================================*/

@@ -3,8 +3,8 @@
 
 serialOscilloscope  
 
-package format  
-packageLens = int16Lens * 2 + 4  
+packet format  
+packetLens = int16Lens * 2 + 4  
   
 byte[0] = 'S'  
 byte[1] = data_01_H8  
