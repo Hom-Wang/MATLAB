@@ -1,22 +1,10 @@
 clear;
 
-s = creatSerial(115200, 'clear');
-fopen(s);
+s = kSerial(115200, 'clear');
+s.initPacket(6, 'single');    % float32 * 6
+s.open();
 
-packetSize  = 30;
-dataBufSize = 1024;
-
-% init packet parameter
-packet = struct;
-packet.recvBufMaxLens = s.InputBufferSize * 2;
-packet.recvBufLens    = 0;
-packet.recvBuffer     = zeros(packet.recvBufMaxLens, 1);
-packet.packetSize     = packetSize;
-packet.dataMaxLens    = (packet.packetSize - 6) / 4;    % float32 -> 4 bytes
-packet.sequenceNum    = 0;
-packet.packetCount    = 0;
-
-packetDataBuf = zeros(packet.dataMaxLens, dataBufSize);
+dataBuffer = zeros(s.packet.dataLengths, 1024);
 
 getFirstSequenceNum = true;
 firstSequenceNum = 0;
@@ -24,23 +12,20 @@ firstSequenceNum = 0;
 tic
 for i = 1 : 10000
 %while true
-    [packet, packetData, availablePacket] = serialPacketRecv(s, packet);
-    if availablePacket
-        packetLens = size(packetData, 2);
-        packetDataBuf = [packetDataBuf(:, packetLens + 1 : end), packetData];
-        fprintf('[%5i] [%2i] %6.3f, %6.3f, %6.3f, %6.3f\n', packet.sequenceNum, packetLens, packetDataBuf(1 : 4, end));
-
+    [packetData, packetLens] = s.packetRecv();
+    if packetLens > 0
+        dataBuffer = [dataBuffer(:, packetLens + 1 : end), packetData];       % record data
+        fprintf('[%5i] [%2i] %6.3f, %6.3f, %6.3f, %6.3f m\n', s.packet.sequenceNum, packetLens, dataBuffer(1 : 4, end));
         if getFirstSequenceNum
-            firstSequenceNum = packet.sequenceNum;
+            firstSequenceNum = s.packet.sequenceNum;
             getFirstSequenceNum = false;
         end
     end
 end
 time = toc;
 
-lostPacket = (packet.sequenceNum - firstSequenceNum + 1) - packet.packetCount;
-sampleRate = packet.packetCount / time;
-fprintf('recv packet = %d, lost packet = %d, sample rate = %.3f Hz\n', packet.packetCount, lostPacket, sampleRate);
+lostPacket = (s.packet.sequenceNum - firstSequenceNum + 1) - s.packet.packetCount;
+sampleRate = s.packet.packetCount / time;
+fprintf('\nrecv packet = %d, lost packet = %d, sample rate = %.3f Hz\n', s.packet.packetCount, lostPacket, sampleRate);
 
-fclose(s);
-delete(s);
+s.close();

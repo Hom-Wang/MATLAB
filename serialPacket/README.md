@@ -4,7 +4,8 @@
 serialPacket  
 
 serial format  
-byte[01:02] - "KS"  
-byte[03:04] - sequence number  
-byte[05:20] - float32 data * lens  
-byte[21:22] - "\r\n"  
+byte[   1 :   2 ] - "KS"  
+byte[   3 :   4 ] - TTTT LLLL LLLL LLLL, T : type (4 bits), L : data length (12 bits)  
+byte[   5 : L+4 ] - data * L  
+byte[ L+5 : L+6 ] - sequence number  
+byte[ L+7 : L+8 ] - "\r\n"  
