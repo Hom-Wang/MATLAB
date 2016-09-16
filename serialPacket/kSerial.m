@@ -1,10 +1,14 @@
 classdef kSerial < handle
 
+properties (SetAccess = public)
+    dataBuffer = [];
+end
+
 properties (SetAccess = private)
     serial;
     comPort = '';
     baudRate = 115200;
-    inputBufferSize = 1024;
+    inputBufferSize = 4096;
 
     packet = struct;
 end
@@ -70,6 +74,7 @@ methods
         s.serial.InputBufferSize = s.inputBufferSize;
 
         fprintf(['com port : ', s.comPort, '\n']);
+        s.initPacket();
     end
 
     function open( s )
@@ -100,14 +105,12 @@ methods
     end
 
     % init packet parameter
-    function initPacket( s, dataLens, dataType )
-        s.packet.dataType       = dataType;
-        s.packet.dataSize       = s.sizeof(dataType);
-        s.packet.dataBytes      = dataLens * s.packet.dataSize;
-        s.packet.dataLengths    = dataLens;
+    function initPacket( s )
+        s.packet.dataType       = 0;
+        s.packet.dataLengths    = 0;
         s.packet.data           = 0;
 
-        s.packet.packetSize     = 8 + dataLens * s.packet.dataSize;
+        s.packet.packetSize     = 0;
         s.packet.packetCount    = 0;
 
         s.packet.recvBufSize    = s.inputBufferSize * 2;
@@ -116,15 +119,18 @@ methods
 
         s.packet.sequenceNum    = 0;
         s.packet.availableData  = 0;
-        s.packet.availableIndex = zeros(1, fix(s.packet.recvBufSize / s.packet.packetSize) + 1);
-        s.packet.bufThreshold   = s.packet.packetSize;
+        s.packet.availableIndex = zeros(1, 256);        % fix(s.packet.recvBufSize / s.packet.packetSize) + 1
     end
 
-    function varargout = packetRecv( s )
+    function varargout = packetRecv( s, dataLens, dataType )
 
         % default output
         s.packet.data = [];
         s.packet.availableData = 0;
+
+        s.packet.dataLengths = dataLens;
+        s.packet.dataType    = dataType;
+        s.packet.packetSize  = 8 + dataLens * s.sizeof(dataType);
 
         nBytes = get(s.serial, 'BytesAvailable');
         if nBytes > 0
@@ -132,7 +138,7 @@ methods
             s.packet.recvBuffer(s.packet.recvBufLengths + 1 : s.packet.recvBufLengths + nBytes) = readData;
             s.packet.recvBufLengths = s.packet.recvBufLengths + nBytes;
 
-            if s.packet.recvBufLengths >= s.packet.bufThreshold
+            if s.packet.recvBufLengths >= s.packet.packetSize
                 packetIndex = s.packet.recvBufLengths - s.packet.packetSize + 1;
                 s.packet.availableIndex(:, :) = 0;
 
@@ -152,6 +158,7 @@ methods
                 indexLens = size(find(s.packet.availableIndex ~= 0), 2);
                 if indexLens ~= 0
 
+                    % get newest packet information
                     i = s.packet.availableIndex(indexLens);
                     s.packet.gType = s.getDataType(fix(s.packet.recvBuffer(i + 3) / 16));
                     s.packet.gLens = s.packet.recvBuffer(i + 2) + mod(s.packet.recvBuffer(i + 3), 16) * 256 + 1;
@@ -160,7 +167,8 @@ methods
                     % get data from buffer
                     s.packet.data = zeros(s.packet.dataLengths, indexLens);
                     for k = 1 : indexLens
-                        s.packet.data(:, k) = typecast(uint8(s.packet.recvBuffer(i + 4 : i + s.packet.packetSize - 5)), s.packet.dataType);    % s.packet.gType
+                        j = s.packet.availableIndex(k);
+                        s.packet.data(:, k) = typecast(uint8(s.packet.recvBuffer(j + 4 : j + s.packet.packetSize - 5)), s.packet.dataType);    % s.packet.gType
                     end
 
                     % update recv buffer & lengths
@@ -180,51 +188,31 @@ methods (Access = private)
 
     function type = getDataType( s, typeNum )
         switch typeNum
-            case 0
-                type = 'int8';
-            case 1
-                type = 'uint8';
-            case 2
-                type = 'int16';
-            case 3
-                type = 'uint16';
-            case 4
-                type = 'int32';
-            case 5
-                type = 'uint32';
-            case 6
-                type = 'int64';
-            case 7
-                type = 'uint64';
-            case 8
-                type = 'single';
-            case 9
-                type = 'double';
+            case 0, type = 'int8';
+            case 1, type = 'uint8';
+            case 2, type = 'int16';
+            case 3, type = 'uint16';
+            case 4, type = 'int32';
+            case 5, type = 'uint32';
+            case 6, type = 'int64';
+            case 7, type = 'uint64';
+            case 8, type = 'single';
+            case 9, type = 'double';
         end
     end
 
     function byte = sizeof( s, type )
         switch type
-            case 'int8'
-                byte = 1;
-            case 'uint8'
-                byte = 1;
-            case 'int16'
-                byte = 2;
-            case 'uint16'
-                byte = 2;
-            case 'int32'
-                byte = 4;
-            case 'uint32'
-                byte = 4;
-            case 'int64'
-                byte = 8;
-            case 'uint64'
-                byte = 8;
-            case 'single'
-                byte = 4;
-            case 'double'
-                byte = 8;
+            case 'int8',    byte = 1;
+            case 'uint8',	byte = 1;
+            case 'int16',	byte = 2;
+            case 'uint16',	byte = 2;
+            case 'int32',	byte = 4;
+            case 'uint32',	byte = 4;
+            case 'int64',	byte = 8;
+            case 'uint64',	byte = 8;
+            case 'single',	byte = 4;
+            case 'double',	byte = 8;
         end
     end
 end
