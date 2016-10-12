@@ -16,6 +16,7 @@ end
 methods
 %{
     ---- constructor
+    s = creatSerial()                           % port = 'auto', baudRate = 115200, no delete instrfindall
     s = creatSerial(baudRate)                   % port = 'auto', set baudRate, no delete instrfindall
     s = creatSerial(port, baudRate)             % set port, set baudRate, no delete instrfindall
     s = creatSerial(baudRate, 'clear')          % port = 'auto', delete instrfindall
@@ -24,6 +25,9 @@ methods
 %}
     function s = kSerial( varargin )
         switch nargin
+            case 0
+                port = 'auto';
+                s.baudRate = 115200;
             case 1
                 port = 'auto';
                 s.baudRate = varargin{1};
@@ -128,10 +132,12 @@ methods
         s.packet.data = [];
         s.packet.availableData = 0;
 
+        % update packet information
         s.packet.dataLengths = dataLens;
         s.packet.dataType    = dataType;
         s.packet.packetSize  = 8 + dataLens * s.sizeof(dataType);
 
+        % start to read
         nBytes = get(s.serial, 'BytesAvailable');
         if nBytes > 0
             readData = fread(s.serial, nBytes, 'uint8');
@@ -188,31 +194,31 @@ methods (Access = private)
 
     function type = getDataType( s, typeNum )
         switch typeNum
-            case 0, type = 'int8';
-            case 1, type = 'uint8';
-            case 2, type = 'int16';
-            case 3, type = 'uint16';
-            case 4, type = 'int32';
-            case 5, type = 'uint32';
-            case 6, type = 'int64';
-            case 7, type = 'uint64';
-            case 8, type = 'single';
-            case 9, type = 'double';
+            case 0,   type = 'int8';
+            case 1,   type = 'uint8';
+            case 2,   type = 'int16';
+            case 3,   type = 'uint16';
+            case 4,   type = 'int32';
+            case 5,   type = 'uint32';
+            case 6,   type = 'int64';
+            case 7,   type = 'uint64';
+            case 10,  type = 'single';
+            case 11,  type = 'double';
         end
     end
 
     function byte = sizeof( s, type )
         switch type
             case 'int8',    byte = 1;
-            case 'uint8',	byte = 1;
-            case 'int16',	byte = 2;
-            case 'uint16',	byte = 2;
-            case 'int32',	byte = 4;
-            case 'uint32',	byte = 4;
-            case 'int64',	byte = 8;
-            case 'uint64',	byte = 8;
-            case 'single',	byte = 4;
-            case 'double',	byte = 8;
+            case 'uint8',   byte = 1;
+            case 'int16',   byte = 2;
+            case 'uint16',  byte = 2;
+            case 'int32',   byte = 4;
+            case 'uint32',  byte = 4;
+            case 'int64',   byte = 8;
+            case 'uint64',  byte = 8;
+            case 'single',  byte = 4;
+            case 'double',  byte = 8;
         end
     end
 end

@@ -1,7 +1,10 @@
 clear;
 
+dataLens = 2;
+dataType = 'int16';
+
 s = kSerial(256000, 'clear');
-s.dataBuffer = zeros(12, 1024 * 8);
+s.dataBuffer = zeros(dataLens, 1024 * 8);
 s.open();
 
 getFirstSequenceNum = true;
@@ -10,10 +13,10 @@ firstSequenceNum = 0;
 tic
 for i = 1 : 40000
 %while true
-    [packetData, packetLens] = s.packetRecv(12, 'single');
+    [packetData, packetLens] = s.packetRecv(dataLens, dataType);
     if packetLens > 0
         s.dataBuffer = [s.dataBuffer(:, packetLens + 1 : end), packetData];       % record data
-        fprintf('[%5i][%2i]   Gyr[%8.3f, %8.3f, %8.3f]   Acc[%8.5f, %8.5f, %8.5f]   Mag[%8.3f, %8.3f, %8.3f]   Att[%8.4f, %8.4f, %8.4f]\n', s.packet.sequenceNum, packetLens, s.dataBuffer(:, end));
+        fprintf('[%5i][%2i][%6i, %6i]\n', s.packet.sequenceNum, packetLens, s.dataBuffer(1 : end, end));
         if getFirstSequenceNum
             firstSequenceNum    = s.packet.sequenceNum;
             getFirstSequenceNum = false;
