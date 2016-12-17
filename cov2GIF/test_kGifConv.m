@@ -16,11 +16,9 @@ ylabel('y(m)');
 hold on
 grid on
 
-count = 0;
+kgif = kGifConv('serial data - acc.gif');
 step = 100;
 for i = 1 : step : dataLens
-
-    count = count + 1;
     plot(runtimes(1:i), data(1, 1:i), 'r');
     plot(runtimes(1:i), data(2, 1:i), 'g');
     plot(runtimes(1:i), data(3, 1:i), 'b');
@@ -29,12 +27,7 @@ for i = 1 : step : dataLens
     window = window + step;
     axis([window, window + window_w, y_axisMin, y_axisMax]);
 
-    frames(count) = getframe(1, [70, 20, 1100, 650]);
-
+    kgif.record(fig1);
 end
 
-dt = 0.2;
-filename = 'serial data - acc.gif';
-getGIF(filename, frames, 128, dt);
-
-
+kgif.conv();
