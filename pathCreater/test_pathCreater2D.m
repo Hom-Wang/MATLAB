@@ -2,7 +2,7 @@
 clear;
 close all;
 
-dt = 0.01;
+dt = 0.1;
 vm = 0.5;
 am = 0.5;
 round = 1;
@@ -28,7 +28,7 @@ head = cpath(7, :);
 time = cpath(8, :);
 
 % {
-figure(1);
+fig1 = figure(1);
 subplot(4, 1, 1);
 hold on;  grid on;
 plot(time, pos(1, :));
@@ -62,7 +62,7 @@ ylabel('theta (deg)');
 %}
 
 % {
-figure(2);
+fig2 = figure(2);
 map = subplot(1, 1, 1);
 hold on;  grid on;  axis equal;
 axis(map, [min(pos(1, :)) - 0.5, max(pos(1, :)) + 0.5, min(pos(2, :)) - 0.5, max(pos(2, :)) + 0.5]);
@@ -71,12 +71,22 @@ plot(map, rpos(1, :), rpos(2, :), '.k', 'MarkerSize', 12);
 %}
 
 % {
+kgif = kGifConv('pathCreater.gif');
+kgif.dt = 0.01;
 tx = text(map, min(pos(1, :)) - 0.4, min(pos(2, :)) - 0.25, 'time');
 point = plot(map, pos(1, 1), pos(2, 1), 'bo', 'MarkerSize', 8, 'LineWidth', 2);
 for i = 2 : size(pos, 2)
    point.XData = pos(1, i);
    point.YData = pos(2, i);
    tx.String = sprintf('%05.2f s', time(i));
-   drawnow;
+%    drawnow;
+
+   kgif.record(fig2);
 end
+
+kgif.conv();
+%}
+
+%{
+print(fig1, 'pathCreater_data', '-dpng', '-r1200'); 
 %}
