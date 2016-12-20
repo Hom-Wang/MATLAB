@@ -188,6 +188,24 @@ methods
         varargout = { s.packet.data, s.packet.availableData };
     end
 
+    function freq = getFreq( s, index, length )
+        sec_s = s.dataBuffer(index(2), end - length) + s.dataBuffer(index(1), end - length);
+        sec_e = s.dataBuffer(index(2), end) + s.dataBuffer(index(1), end);
+        freq = fix(length / (sec_e - sec_s) * 100  + 1e-5) / 100;
+    end
+
+    function save2mat( s, name, index )
+        fprintf('\nSAVE... ');
+        date = fix(clock);
+        tag  = sprintf('_%04i%02i%02i_%02i%02i%02i.mat', date);
+        fileName = strcat(name, tag);
+        dataLens = s.packet.packetCount;
+        data     = s.dataBuffer(:, end - dataLens + 1 : end);
+        dataIndex = index;
+        save(fileName, 'data', 'dataLens', 'dataIndex');
+        fprintf('OK\n');
+    end
+
 end
 
 methods (Access = private)
@@ -202,8 +220,8 @@ methods (Access = private)
             case 5,   type = 'uint32';
             case 6,   type = 'int64';
             case 7,   type = 'uint64';
-            case 8,   type = 'single';
-            case 9,   type = 'double';
+            case 10,  type = 'single';
+            case 11,  type = 'double';
         end
     end
 
