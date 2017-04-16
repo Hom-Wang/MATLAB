@@ -188,17 +188,27 @@ methods
         varargout = { s.packet.data, s.packet.availableData };
     end
 
-    function freq = getFreq( s, index, length )
-        sec_s = s.dataBuffer(index(2), end - length) + s.dataBuffer(index(1), end - length);
-        sec_e = s.dataBuffer(index(2), end) + s.dataBuffer(index(1), end);
+    function freq = getFreq( s, index, length, unit )
+        sec_s = s.dataBuffer(index(1), end - length) + s.dataBuffer(index(2), end - length) * unit;
+        sec_e = s.dataBuffer(index(1), end) + s.dataBuffer(index(2), end) * unit;
         freq = fix(length / (sec_e - sec_s) * 100  + 1e-5) / 100;
     end
 
+    function updateBuffer( s, data, lens )
+        s.dataBuffer = [s.dataBuffer(:, lens + 1 : end), data];
+    end
+
+    function data = getBuffer( s )
+        data = s.dataBuffer;
+    end
+
     function save2mat( s, name, index )
-        fprintf('\nSAVE... ');
+        fprintf('\n');
         date = fix(clock);
         tag  = sprintf('_%04i%02i%02i_%02i%02i%02i.mat', date);
         fileName = strcat(name, tag);
+        fprintf(fileName);
+        fprintf('  SAVE... ');
         dataLens = s.packet.packetCount;
         data     = s.dataBuffer(:, end - dataLens + 1 : end);
         dataIndex = index;

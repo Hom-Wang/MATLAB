@@ -3,18 +3,19 @@ clear;
 close all;
 
 % load data
-load('imuData_20161220_181303.mat');
-time = data(1, :) + data(2, :);
+load('rawData_20170416_144700.mat');
+gyr  = data( 1:  3, :);
+acc  = data( 4:  6, :);
+mag  = data( 7:  9, :);
+q    = data(10: 13, :) / 10000;
+sec  = data(14, :);
+msc  = data(15, :) / 1000;
+time = sec + msc;
 time = time - time(1);
-yg   = data( 3: 5, :);
-ya   = data( 6: 8, :);
-ym   = data( 9:11, :);
-att  = data(12:14, :);
-q    = data(15:18, :);
 
 dataInfo = [ sprintf('lens = %d', dataLens), sprintf('t = %.2fs', time(end)), dataIndex ]
 
-% {
+%{
 % check time
 dt = fix((time(2:end) - time(1:end-1)) * 1e3 + 1e-5) / 1e3;
 % plot(1:dataLens-1, dt);
@@ -28,7 +29,7 @@ fig1 = figure(1);
 subplot(4, 1, 1);
 hold on
 grid on
-plot(time, yg);
+plot(time, gyr);
 legend('gyr_x', 'gyr_y', 'gyr_z');
 xlabel('time (s)');
 ylabel('Angular velocity (dps)');
@@ -36,7 +37,7 @@ ylabel('Angular velocity (dps)');
 subplot(4, 1, 2);
 hold on
 grid on
-plot(time, ya);
+plot(time, acc);
 legend('acc_x', 'acc_y', 'acc_z');
 xlabel('time (s)');
 ylabel('Acceleration (m/s^2)');
@@ -44,7 +45,7 @@ ylabel('Acceleration (m/s^2)');
 subplot(4, 1, 3);
 hold on
 grid on
-plot(time, ym);
+plot(time, mag);
 legend('mag_x', 'mag_y', 'mag_z');
 xlabel('time (s)');
 ylabel('Magnetic (gauss)');
@@ -52,8 +53,8 @@ ylabel('Magnetic (gauss)');
 subplot(4, 1, 4);
 hold on
 grid on
-plot(time, att);
-legend('pitch', 'roll', 'yaw');
+plot(time, q);
+legend('q0', 'q1', 'q2', 'q3');
 xlabel('time (s)');
-ylabel('theta (deg)');
+ylabel('quaternion');
 %}
