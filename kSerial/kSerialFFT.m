@@ -1,4 +1,4 @@
-function f = plotFFT( f, data, freq, state )
+function f = kSerialFFT( f, data, freq, state )
 
 if isequal(state, 'init')
     grid(f.fig, 'on');
