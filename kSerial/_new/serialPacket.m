@@ -12,8 +12,8 @@ for i = 1 : 10000
         sec   = s.record.data(1, end);
         msc   = s.record.data(2, end);
         count = s.record.data(3, end);
-        tt   = s.getTime([1, 2], 0, 0.001);
-        freq = s.getFreq([1, 2], 256, 0.001);
+        tt    = s.getTime([1, 2], 0, 0.001);
+        freq  = s.getFreq([1, 2], 256, 0.001);
         fprintf('[%02i:%02i:%02i][%4.0fHz] [command] 0x%02X [%05i]\n', tt(1), tt(2), fix(tt(3) / 10), freq, s.record.info(2, end), count);
 
 % freq = s.getFreq(1);
