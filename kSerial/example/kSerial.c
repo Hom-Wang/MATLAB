@@ -17,7 +17,7 @@
   *          byte 5   : parameter 1       [P1]
   *          byte 6   : parameter 2       [P2]
   *           ...
-  *          byte L-2 : data              [D ]
+  *          byte L-2 : data              [DN]
   *          byte L-1 : finish '\r' (13)  [ER]
   *          byte L   : finish '\n' (10)  [EN]
   */
@@ -85,7 +85,7 @@ void kSerial_Config( USART_TypeDef *USARTx )
 /**
   * @brief  kSerial_Pack
   */
-int8_t kSerial_Pack( uint8_t *packet, uint8_t *param, void *data, const uint8_t lens, const uint8_t type )
+int8_t kSerial_Pack( uint8_t *packet, void *param, void *data, const uint8_t lens, const uint8_t type )
 {
   const uint8_t packetDataLens = lens * (type & (uint8_t)0x0F);
 
@@ -94,8 +94,8 @@ int8_t kSerial_Pack( uint8_t *packet, uint8_t *param, void *data, const uint8_t 
   packet[2] = 8 + packetDataLens;         /* total length */
   packet[3] = type;                       /* data type    */
   if (param != NULL) {
-    packet[4] = param[0];                 /* parameter 1  */
-    packet[5] = param[1];                 /* parameter 2  */
+    packet[4] = ((uint8_t*)param)[0];     /* parameter 1  */
+    packet[5] = ((uint8_t*)param)[1];     /* parameter 2  */
   }
   else {
     packet[4] = 0;
@@ -115,7 +115,7 @@ int8_t kSerial_Pack( uint8_t *packet, uint8_t *param, void *data, const uint8_t 
 /**
   * @brief  kSerial_Unpack
   */
-int8_t kSerial_Unpack( uint8_t *packet, uint8_t *param, void *data, uint8_t *lens, uint8_t *type )
+int8_t kSerial_Unpack( uint8_t *packet, void *param, void *data, uint8_t *lens, uint8_t *type )
 {
   if ((packet[0] == 'K') && (packet[1] == 'S')) {
     *lens = packet[2];
@@ -124,8 +124,8 @@ int8_t kSerial_Unpack( uint8_t *packet, uint8_t *param, void *data, uint8_t *len
     }
     if ((packet[*lens - 2] == '\r') && (packet[*lens - 1] == '\n')) {
       *type  = packet[3];
-      param[0] = packet[4];
-      param[1] = packet[5];
+      ((uint8_t*)param)[0] = packet[4];
+      ((uint8_t*)param)[1] = packet[5];
       for (uint8_t i = 0; i < *lens; i++ ) {
         ((uint8_t*)data)[i] = packet[6 + i];
       }
@@ -139,7 +139,7 @@ int8_t kSerial_Unpack( uint8_t *packet, uint8_t *param, void *data, uint8_t *len
 /**
   * @brief  kSerial_SendPacket
   */
-int8_t kSerial_SendPacket( uint8_t *param, void *data, const uint8_t lens, const uint8_t type )
+int8_t kSerial_SendPacket( void *param, void *data, const uint8_t lens, const uint8_t type )
 {
   int8_t state;
 
@@ -155,7 +155,7 @@ int8_t kSerial_SendPacket( uint8_t *param, void *data, const uint8_t lens, const
 /**
   * @brief  kSerial_RecvPacket
   */
-int8_t kSerial_RecvPacket( uint8_t *param, void *data, uint8_t *lens, uint8_t *type )
+int8_t kSerial_RecvPacket( void *param, void *data, uint8_t *lens, uint8_t *type )
 {
   static uint8_t point = 0;
   static uint8_t index = 0;
@@ -190,7 +190,6 @@ int8_t kSerial_RecvPacket( uint8_t *param, void *data, uint8_t *lens, uint8_t *t
   */
 uint8_t kSerial_GetPacketDataLens( uint8_t lens, uint8_t type )
 {
-  lens -= 8;
   switch (type & 0x0F) {
     case 0x01:  break;
     case 0x02:  lens >>= 1; break;

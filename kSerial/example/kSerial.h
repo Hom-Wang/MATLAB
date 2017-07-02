@@ -29,10 +29,10 @@
 /* Exported constants ----------------------------------------------------------------------*/
 /* Exported functions ----------------------------------------------------------------------*/  
 void    kSerial_Config( USART_TypeDef *USARTx );
-int8_t  kSerial_Pack( uint8_t *packet, uint8_t *param, void *data, const uint8_t lens, const uint8_t type );
-int8_t  kSerial_Unpack( uint8_t *packet, uint8_t *param, void *data, uint8_t *lens, uint8_t *type );
-int8_t  kSerial_SendPacket( uint8_t *param, void *data, const uint8_t lens, const uint8_t type );
-int8_t  kSerial_RecvPacket( uint8_t *param, void *data, uint8_t *lens, uint8_t *type );
+int8_t  kSerial_Pack( uint8_t *packet, void *param, void *data, const uint8_t lens, const uint8_t type );
+int8_t  kSerial_Unpack( uint8_t *packet, void *param, void *data, uint8_t *lens, uint8_t *type );
+int8_t  kSerial_SendPacket( void *param, void *data, const uint8_t lens, const uint8_t type );
+int8_t  kSerial_RecvPacket( void *param, void *data, uint8_t *lens, uint8_t *type );
 uint8_t kSerial_GetPacketDataLens( uint8_t lens, uint8_t type );
 
 #ifdef __cplusplus

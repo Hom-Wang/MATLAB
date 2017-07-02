@@ -278,8 +278,8 @@ methods
                 param    = varargin{1};
                 data     = varargin{2};
                 type     = s.typeConv(class(data));
-                [m, i]   = max(size(data));
-                lens     = 8 + s.typeSize(type) * m;
+                [b, i]   = max(size(data));
+                lens     = 8 + s.typeSize(type) * b;
                 if i == 1
                     data = data(:, 1)';
                 elseif i == 2
@@ -293,8 +293,8 @@ methods
                 data     = varargin{2};
                 typeStr  = varargin{3};
                 type     = s.typeConv(typeStr);
-                [m, i]   = max(size(data));
-                lens     = 8 + s.getDataByte(type) * m;
+                [b, i]   = max(size(data));
+                lens     = 8 + s.getDataByte(type) * b;
                 if i == 1
                     data = data(:, 1)';
                 elseif i == 2
@@ -428,9 +428,6 @@ methods
             end
         end
     end
-end
-
-methods (Access = private)
 
 	function bytes = typeSize( ~, type )
         if isequal(class(type), 'char')
@@ -463,6 +460,10 @@ methods (Access = private)
             end
         end
     end
+end
+
+methods (Access = private)
+
 end
 
 end
