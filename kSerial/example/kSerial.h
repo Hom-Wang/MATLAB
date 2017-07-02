@@ -8,7 +8,7 @@
   * 
   * @file    kSerial.h
   * @author  KitSprout
-  * @date    22-Mar-2017
+  * @date    02-Jul-2017
   * @brief   
   * 
   */
@@ -26,23 +26,14 @@
 #include "algorithms\mathUnit.h"
 
 /* Exported types --------------------------------------------------------------------------*/
-typedef enum {
-  KS_INT8 = 0,
-  KS_INT16,
-  KS_INT32,
-  KS_INT64,
-  KS_UINT8,
-  KS_UINT16,
-  KS_UINT32,
-  KS_UINT64,
-  KS_FLOAT32,
-  KS_FLOAT64
-} KSerial_TypeIndex;
-
 /* Exported constants ----------------------------------------------------------------------*/
 /* Exported functions ----------------------------------------------------------------------*/  
-void kSerial_Config( USART_TypeDef *USARTx );
-void kSerial_SendData( void *data, const uint8_t lens, const uint8_t type );
+void    kSerial_Config( USART_TypeDef *USARTx );
+int8_t  kSerial_Pack( uint8_t *packet, uint8_t *param, void *data, const uint8_t lens, const uint8_t type );
+int8_t  kSerial_Unpack( uint8_t *packet, uint8_t *param, void *data, uint8_t *lens, uint8_t *type );
+int8_t  kSerial_SendPacket( uint8_t *param, void *data, const uint8_t lens, const uint8_t type );
+int8_t  kSerial_RecvPacket( uint8_t *param, void *data, uint8_t *lens, uint8_t *type );
+uint8_t kSerial_GetPacketDataLens( uint8_t lens, uint8_t type );
 
 #ifdef __cplusplus
 }

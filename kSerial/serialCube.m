@@ -10,11 +10,11 @@ s.open();
 fig = figure(1);
 set(fig, 'Position', [100, 140, 1200, 600], 'color', 'w');
 
-figSub = subplot(1, 1, 1);
+subFig = subplot(1, 1, 1);
 cube = kSerialCube([0, 0, 0], [1.5, 1.5, 0.5], [1.5, 1.5, 1.5]);   % origin, scale, window
-cube.initCube(figSub, [315, 30]);           % view
+cube.initCube(subFig, [315, 30]);           % view
 
-while ishandle(figSub)
+while ishandle(subFig)
     [packetData, packetLens] = s.packetRecv(dataLens, dataType);
     if packetLens > 0
         s.updateBuffer(packetData, packetLens);     % record data

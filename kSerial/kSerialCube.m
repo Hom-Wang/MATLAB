@@ -1,3 +1,17 @@
+% 
+%       __            ____
+%      / /__ _  __   / __/                      __  
+%     / //_/(_)/ /_ / /  ___   ____ ___  __ __ / /_ 
+%    / ,<  / // __/_\ \ / _ \ / __// _ \/ // // __/ 
+%   /_/|_|/_/ \__//___// .__//_/   \___/\_,_/ \__/  
+%                     /_/   github.com/KitSprout    
+%  
+%  @file    kSerialCube.m
+%  @author  KitSprout
+%  @date    02-Jul-2017
+%  @brief   
+% 
+
 classdef kSerialCube < handle
 
 properties (SetAccess = public)
